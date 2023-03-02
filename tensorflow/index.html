@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Draw This!</title>
+    
+    <meta charset="utf-8">
+    <!-- Import the webpage's stylesheet -->
+    <link rel="stylesheet" href="style.css">
+  </head>  
+  <body>
+    <h1>Draw This!</h1>
+
+      <h2>After clicking the webcam button below, test your drawing skills by showing drawings of each item to the webcam. A pre-trained model in Tensorflow.js will read the video data and try to classify whatever is shown.</h2>
+      
+    <p>Once the model from Tensor.js is ready, you can click the button below!</p>
+      <section class="prompt">
+            <h2>Draw these and show to the camera!</h2>
+            <ul>
+                <li id="prompt1">Loading..</li>
+                <li id="prompt2">Loading..</li>
+                <li id="prompt3">Loading..</li>
+            </ul>
+            <p id="time"></p>
+        </section>
+    
+    <section id="demos" class="invisible">      
+      <div class="center">
+        <div id="liveView" class="camView">  
+        <button id="webcamButton">Loading...</button>
+        <video id="webcam" autoplay muted width="640" height="480"></video>
+      </div>
+      </div>
+      
+    </section>
+
+    <!-- Import TensorFlow.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js" type="text/javascript"></script>
+    <!-- Load the coco-ssd model to use to recognize things in images -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+    
+    <!-- Import the page's JavaScript to do some stuff -->
+    <script src="script.js" defer></script>
+  </body>
+</html>
