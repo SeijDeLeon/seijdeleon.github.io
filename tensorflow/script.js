@@ -32,6 +32,8 @@ const enableWebcamButton = document.getElementById('webcamButton');
 const prompt1 = document.getElementById('prompt1');
 const prompt2 = document.getElementById('prompt2');
 const prompt3 = document.getElementById('prompt3');
+const prompt_section = document.getElementById('prompt-section');
+const instruction = document.getElementById('instruction')
 const prompts = [prompt1, prompt2, prompt3];
 
 // Check if webcam access is supported.
@@ -41,7 +43,7 @@ function getUserMediaSupported() {
 }
 
 // If webcam supported, add event listener to button for when user
-// wants to activate it to call enableCam function which we will 
+// wants to activate it to call enableCam function which we will
 // define in the next step.
 if (getUserMediaSupported()) {
   enableWebcamButton.addEventListener('click', enableCam);
@@ -55,10 +57,16 @@ function enableCam(event) {
   if (!model) {
     return;
   }
-  
+
   // Hide the button once clicked.
-  event.target.classList.add('removed');  
-  
+  event.target.classList.add('removed');
+
+  //Hide the instructions
+  instruction.classList.add('removed');
+
+  //Show the prompts
+  prompt_section.classList.remove('removed');
+
   // getUsermedia parameters to force video but not audio.
   const constraints = {
     video: true
@@ -81,25 +89,25 @@ function predictWebcam() {
       liveView.removeChild(children[i]);
     }
     children.splice(0);
-    
+
     // Now lets loop through predictions and draw them to the live view if
     // they have a high confidence score.
     for (let n = 0; n < predictions.length; n++) {
       // If we are over 66% sure we are sure we classified it right, draw it!
       if (predictions[n].score > 0.66) {
         const p = document.createElement('p');
-        p.innerText = predictions[n].class  + ' - with ' 
-            + Math.round(parseFloat(predictions[n].score) * 100) 
+        p.innerText = predictions[n].class  + ' - with '
+            + Math.round(parseFloat(predictions[n].score) * 100)
             + '% confidence.';
         drawingChecker(predictions[n].class);
         p.style = 'margin-left: ' + predictions[n].bbox[0] + 'px; margin-top: '
-            + (predictions[n].bbox[1] - 10) + 'px; width: ' 
+            + (predictions[n].bbox[1] - 10) + 'px; width: '
             + (predictions[n].bbox[2] - 10) + 'px; top: 0; left: 0;';
 
         const highlighter = document.createElement('div');
         highlighter.setAttribute('class', 'highlighter');
         highlighter.style = 'left: ' + predictions[n].bbox[0] + 'px; top: '
-            + predictions[n].bbox[1] + 'px; width: ' 
+            + predictions[n].bbox[1] + 'px; width: '
             + predictions[n].bbox[2] + 'px; height: '
             + predictions[n].bbox[3] + 'px;';
 
@@ -109,7 +117,7 @@ function predictWebcam() {
         children.push(p);
       }
     }
-    
+
     // Call this function again to keep predicting when the browser is ready.
     window.requestAnimationFrame(predictWebcam);
   });
@@ -119,7 +127,7 @@ function predictWebcam() {
 var model = undefined;
 
 // Before we can use COCO-SSD class we must wait for it to finish
-// loading. Machine Learning models can be large and take a moment 
+// loading. Machine Learning models can be large and take a moment
 // to get everything needed to run.
 // Note: cocoSsd is an external object loaded from our index.html
 // script tag import so ignore any warning in Glitch.
@@ -128,21 +136,34 @@ cocoSsd.load().then(function (loadedModel) {
   // Show demo section now model is ready to use.
   demosSection.classList.remove('invisible');
   document.getElementById('webcamButton').innerHTML = "Enable Webcam";
+  enableWebcamButton.classList.add('wiggle');
+  assignPrompts();
 });
 
 //define a list of possible objects that coco-ssd can recognize
-const items = ['car', 'airplane', 'bus', 'traffic light', 'stop sign', 'bench', 'cat', 'dog', 'bird', 'umbrella', 'kite', 'tennis racket', 'wine glass', 'cup', 'knife', 'spoon', 'apple', 'donut', 'mouse', 'book', 'clock', 'scissors', 'toothbrush'];
+var items = ['car', 'airplane', 'bus', 'traffic light', 'stop sign', 'bench', 'cat', 'dog', 'bird', 'umbrella', 'kite', 'tennis racket', 'wine glass', 'cup', 'knife', 'spoon', 'apple', 'donut', 'mouse', 'book', 'clock', 'scissors', 'toothbrush'];
 
 const drawingChecker = (predicted) => {
     //Change color of item if match occurs at least once
-    
+    var index = answerKey.indexOf(predicted);
+    if (index !== -1) {
+      prompts[index].classList.add('strike');
+    }
+
     //remove item from list of requirements
 }
-
+var answerKey=[];
 const assignPrompts = () => {
-    //randomly generate a prompt from our item list
+    //randomly generates a prompt from our item list
+
+    //get unique integers between 0 and the number of prompts - 1
+    var promptCount = prompts.length;
     for (var i = 0; i < prompts.length; i++) {
-        
+      var random = Math.floor(Math.random()*items.length); //removes random item and stores into answerKey
+      console.log({random});
+      answerKey.push(items.splice(random, 1)[0]);
+      console.log({answerKey});
+      prompts[i].innerHTML = answerKey[i].toUpperCase();
     }
 }
 
